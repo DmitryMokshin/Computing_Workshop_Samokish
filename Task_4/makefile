@@ -8,13 +8,11 @@ prog: $(obj)
 	$(comp) $(opt) $^ -o $@
 %.o %.mod : %.f90
 	$(comp) -c $(opt) $<
-main.o : icad.mod finding_eigenvalues.mod fun_for_matrix.mod
-sse.o : icad.mod
-fun_for_matrix.o : icad.mod
-finding_eigenvalues.o : icad.mod sse.mod fun_for_matrix.mod
+main.o : init_data.mod coord_grid_nodes.mod
+gauss_quad.o : init_data.mod
+coord_grid_nodes.o : init_data.mod
 clear:
 	rm -f *.o *.mod prog
-results: prog
+result: prog
 	./prog
-resultall: prog
-	./prog all
+	rm -f *.o *.mod
