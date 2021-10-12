@@ -17,4 +17,4 @@ clear:
 	rm -f *.o *.mod prog
 result: prog
 	./prog
-	rm -f *.o *.mod
+	rm -f *.o *.mod prog

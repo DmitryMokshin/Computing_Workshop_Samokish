@@ -59,9 +59,8 @@ contains
         real(mp), dimension(1:num_of_coef) :: roots_cheb, vector_b
         real(mp), dimension(1:num_of_coef, 1:num_of_coef) :: matrix_A
 
-        c = 0.0_mp
-
         roots_cheb = solution_cheb()
+
         pol_matrix = legendre_polynomial_coefficients()
 
         do i = 1, num_of_coef
@@ -70,8 +69,8 @@ contains
 
         do i = 1, num_of_coef
             do k = 1, num_of_coef
-                matrix_A(i, k) = alpha * legendre_polynom(roots_cheb(i), pol_matrix(k, :))
-                matrix_A(i, k) = matrix_A(i, k) - integral(i, k, pol_matrix(k, :), roots_cheb(i), kernel_K)
+                matrix_A(i, k) = alpha * legendre_polynom(roots_cheb(i), pol_matrix(k, :)) &
+                & - integral(pol_matrix(k, :), roots_cheb(i), kernel_K)
             end do
         end do
 
@@ -79,10 +78,9 @@ contains
 
     end function coefficients_of_the_series
 
-    function integral(l, m, pol_coef, root_cheb, kernel_K)
+    function integral(pol_coef, root_cheb, kernel_K)
         real(mp), dimension(0:) :: pol_coef
         real(mp) :: integral, root_cheb
-        integer :: l, m
         interface
             function kernel_K(x, t)
                 use :: init_data

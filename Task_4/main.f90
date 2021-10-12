@@ -9,11 +9,14 @@ implicit none
     real(mp), dimension(1:num_of_coef) :: c
     real(mp) :: h
 
+    P_matrix = legendre_polynomial_coefficients()
+
     c = coefficients_of_the_series(kernal_integral_equation, f)
+    
     n = 100
     h = (b - a) / n
 
-    open(15, file='resut.dat', status='replace')
+    open(15, file='result.dat', status='replace')
 
     do i = 0, 100
         write(15, *) a + h * i, result_fun(a + h * i, c)
