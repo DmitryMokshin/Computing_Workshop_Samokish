@@ -38,7 +38,7 @@ contains
 
     end function f_1
 
-    function coefficients_of_the_series(kernel_K, fun_f) result(c)
+    function coefficients_of_the_series(kernel_K, fun_f, alpha) result(c)
         real(mp), dimension(1:num_of_coef) :: c
         interface
             function kernel_K(x, t)
@@ -55,6 +55,7 @@ contains
 
         end interface
         integer :: k, i
+        real(mp) :: alpha
         real(mp), dimension(1:num_of_coef, 0:num_of_coef) :: pol_matrix
         real(mp), dimension(1:num_of_coef) :: roots_cheb, vector_b
         real(mp), dimension(1:num_of_coef, 1:num_of_coef) :: matrix_A
