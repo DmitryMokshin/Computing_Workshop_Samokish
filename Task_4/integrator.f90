@@ -24,14 +24,14 @@ contains
             read(10,*) coefficient_gauss_quad(i), solution_legendre(i)
         end do
 
+        close(10)
+
         integral = 0.0_mp
         do i = 1, n
             integral = integral + coefficient_gauss_quad(i) * fun_for_int((right_int + left_int) &
             & / 2.0_mp + (right_int - left_int) * solution_legendre(i) / 2.0_mp)
         end do
         integral = integral * (right_int - left_int) / 2.0_mp
-
-        close(10)
         
     end function gauss_quad_integral
 

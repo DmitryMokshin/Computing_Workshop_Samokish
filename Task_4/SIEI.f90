@@ -118,4 +118,121 @@ contains
 
     end function result_fun
 
+    function scalar_product_l2(psi, phi)
+        real(mp) :: scalar_product_l2
+        interface
+            function psi(t)
+                use :: init_data
+            implicit none
+                    real(mp) :: t, psi
+            end function psi
+
+            function phi(t)
+                use :: init_data
+            implicit none
+                    real(mp) :: t, phi
+            end function phi
+
+        end interface
+
+        scalar_product_l2 = gauss_quad_integral(a, b, 27, dot_fun)
+
+        contains
+
+        function dot_fun(ksi)
+            real(mp) :: ksi, dot_fun
+
+            dot_fun = psi(ksi) * phi(ksi) 
+
+        end function dot_fun
+
+    end function scalar_product_l2
+
+    function error_method_collocations(c, kernel_K)
+        real(mp), dimension(1:) :: c
+        real(mp) :: delta, eps, error_method_collocations, h
+        integer :: i, n
+        interface
+            function kernel_K(x, t)
+                use :: init_data
+            implicit none
+                    real(mp) :: x, t, kernel_K
+            end function kernel_K
+
+        end interface
+
+        eps = sqrt(scalar_product_l2(int_for_dot, int_for_dot))
+        delta = sqrt(scalar_product_l2(difference_f, difference_f))
+
+        write(*, *) 'eps = ', eps
+        write(*, *) 'delta = ', delta
+
+        error_method_collocations = delta ** 2 / eps
+
+        open(16, file='error_result.dat', status='replace')
+
+        n = 100
+        h = (b - a) / n
+
+        do i = 0, n
+            write(16, *) a + h * i, int_for_dot(a + h * i)
+        end do
+
+        close(16)
+
+        contains
+
+        function u(t)
+            real(mp) :: u, t
+
+            u = result_fun(t, c)
+
+        end function u
+
+        function int_for_dot(t)
+            real(mp) :: t, int_for_dot
+
+            int_for_dot = integral_Ku(t, kernel_K, u) - f(t)
+
+        end function int_for_dot
+
+        function difference_f(t)
+            real(mp) :: difference_f, t
+
+            difference_f = f(t) - f_1(t)
+
+        end function difference_f
+
+    end function error_method_collocations
+
+    function integral_Ku(x, kernel_K, u)
+        real(mp) :: integral_Ku, x
+        interface
+            function kernel_K(x, t)
+                use :: init_data
+            implicit none
+                    real(mp) :: x, t, kernel_K
+            end function kernel_K
+
+            function u(x)
+                use :: init_data
+            implicit none
+                    real(mp) :: x, u
+            end function u
+
+        end interface
+
+        integral_Ku = gauss_quad_integral(a, b, 27, dot_fun)
+
+        contains
+
+        function dot_fun(ksi)
+            real(mp) :: ksi, dot_fun
+
+            dot_fun = kernel_K(x, ksi) * u(ksi)
+
+        end function dot_fun
+
+    end function integral_Ku
+
 end module SIEI
