@@ -56,13 +56,10 @@ contains
         end interface
         integer :: k, i
         real(mp) :: alpha
-        real(mp), dimension(1:num_of_coef, 0:num_of_coef) :: pol_matrix
         real(mp), dimension(1:num_of_coef) :: roots_cheb, vector_b
         real(mp), dimension(1:num_of_coef, 1:num_of_coef) :: matrix_A
 
         roots_cheb = solution_cheb()
-
-        pol_matrix = legendre_polynomial_coefficients()
 
         do i = 1, num_of_coef
             vector_b(i) = fun_f(roots_cheb(i))
@@ -70,8 +67,8 @@ contains
 
         do i = 1, num_of_coef
             do k = 1, num_of_coef
-                matrix_A(i, k) = alpha * legendre_polynom(roots_cheb(i), pol_matrix(k, :)) &
-                & - integral(pol_matrix(k, :), roots_cheb(i), kernel_K)
+                matrix_A(i, k) = alpha * legendre_polynom_rec(roots_cheb(i), k - 1) &
+                & + integral(roots_cheb(i), k, kernel_K)
             end do
         end do
 
@@ -79,9 +76,9 @@ contains
 
     end function coefficients_of_the_series
 
-    function integral(pol_coef, root_cheb, kernel_K)
-        real(mp), dimension(0:) :: pol_coef
+    function integral(root_cheb, k, kernel_K)
         real(mp) :: integral, root_cheb
+        integer :: k
         interface
             function kernel_K(x, t)
                 use :: init_data
@@ -97,7 +94,7 @@ contains
             function dot_fun(ksi)
                 real(mp) :: ksi, dot_fun
 
-                dot_fun = kernel_K(root_cheb, ksi) * legendre_polynom(ksi, pol_coef)
+                dot_fun = kernel_K(root_cheb, ksi) * legendre_polynom_rec(ksi, k - 1)
 
             end function dot_fun
 
@@ -105,18 +102,40 @@ contains
 
     function result_fun(x, c)
         real(mp) :: x, result_fun
-        real(mp), dimension(1:num_of_coef, 0:num_of_coef) :: pol_matrix
         real(mp), dimension(1:) :: c
         integer :: k
-
-        pol_matrix = legendre_polynomial_coefficients()
 
         result_fun = 0.0_mp
 
         do k = 1, num_of_coef
-            result_fun = result_fun + c(k) * legendre_polynom(x, pol_matrix(k, :))
+            result_fun = result_fun + c(k) * legendre_polynom_rec(x, k - 1)
         end do
 
     end function result_fun
+
+    function error_of_results(x, result_c)
+        real(mp), dimension(:) :: result_c
+        real(mp) :: error_of_results, x
+
+        error_of_results = gauss_quad_integral(a, b, 15, dot_fun)
+
+        contains
+
+        function u(t)
+            real(mp) :: t, u
+
+            u = result_fun(t, result_c)
+
+        end function u
+
+        function dot_fun(ksi)
+            real(mp) :: ksi, dot_fun
+
+            dot_fun = kernal_integral_equation(x, ksi) * u(ksi)
+
+        end function dot_fun
+
+
+    end function error_of_results
 
 end module SIEI

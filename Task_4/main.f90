@@ -2,18 +2,20 @@ program main
     use :: init_data
     use :: SIEI
 implicit none
-    integer, parameter :: num_of_alphas = 8
+    integer, parameter :: num_of_alphas = 4
     integer :: i, n, k
-    real(mp), dimension(0:8, 1:num_of_coef) :: c
-    real(mp) :: h, x
+    real(mp), dimension(0:num_of_alphas, 1:num_of_coef) :: c
+    real(mp) :: h, x, init_alpha, step_alpha
     real(mp), dimension(0:num_of_alphas) :: alphas
     character(2) :: num_of_coef_char
 
-    alphas = (/( 0.01_mp ** i, i = 0, num_of_alphas )/)
+    init_alpha = 10.0_mp ** (-7.0_mp)
+    step_alpha = 0.1_mp
+    alphas = (/( init_alpha * step_alpha ** i, i = 0, num_of_alphas )/)
 
     num_of_coef_char = char(ichar('0')+num_of_coef/10)//char(ichar('0')+mod(num_of_coef,10))
 
-    do i = 0, 8
+    do i = 0, num_of_alphas
         c(i, :) = coefficients_of_the_series(kernel_T, f_1, alphas(i))
     end do 
 
@@ -24,7 +26,7 @@ implicit none
 
     write(15, '(a, $)') 'x'
     do i = 0, num_of_alphas
-        write(15, '(a, a, e9.2, $)') '|', 'y, alpha = ', alphas(i)
+        write(15, '(a, a, e9.2, $)') '|', 'y, \alpha = ', alphas(i)
     end do
 
     write(15, *) 
@@ -42,9 +44,9 @@ implicit none
 
     open(17, file='result_coef'//num_of_coef_char//'.csv', status='replace')
 
-    write(17, '(a, e9.2, $)') 'y, alpha = ', alphas(i)
+    write(17, '(a, e9.2, $)') 'c_i, \alpha = ', alphas(0)
     do i = 1, num_of_alphas
-        write(17, '(a, e9.2, $)') '| c_i, alpha = ', alphas(i)
+        write(17, '(a, e9.2, $)') '| c_i, \alpha = ', alphas(i)
     end do
 
     write(17, *) 
