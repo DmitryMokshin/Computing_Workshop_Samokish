@@ -117,7 +117,7 @@ contains
         real(mp), dimension(:) :: result_c
         real(mp) :: error_of_results, x
 
-        error_of_results = gauss_quad_integral(a, b, 15, dot_fun)
+        error_of_results = gauss_quad_integral(a, b, 15, dot_fun) - f(x)
 
         contains
 

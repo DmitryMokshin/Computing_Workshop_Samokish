@@ -1,6 +1,6 @@
 module init_data
     implicit none
-    integer, parameter :: mp = 8, num_of_coef = 12
+    integer, parameter :: mp = 16, num_of_coef = 5
     real(mp), parameter :: pi = acos(-1.0_mp), a = 0.0, b = 1.0
 contains
 

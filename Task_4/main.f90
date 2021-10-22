@@ -2,15 +2,15 @@ program main
     use :: init_data
     use :: SIEI
 implicit none
-    integer, parameter :: num_of_alphas = 4
+    integer, parameter :: num_of_alphas = 7
     integer :: i, n, k
     real(mp), dimension(0:num_of_alphas, 1:num_of_coef) :: c
     real(mp) :: h, x, init_alpha, step_alpha
     real(mp), dimension(0:num_of_alphas) :: alphas
     character(2) :: num_of_coef_char
 
-    init_alpha = 10.0_mp ** (-7.0_mp)
-    step_alpha = 0.1_mp
+    init_alpha = 10.0_mp ** (-0.0_mp)
+    step_alpha = 0.01_mp
     alphas = (/( init_alpha * step_alpha ** i, i = 0, num_of_alphas )/)
 
     num_of_coef_char = char(ichar('0')+num_of_coef/10)//char(ichar('0')+mod(num_of_coef,10))
@@ -60,5 +60,35 @@ implicit none
     end do
 
     close(17)
+
+    do i = 0, n
+        x = a + h * i
+        write(*, '(e20.12, $)') x
+        do k = 0, num_of_alphas
+            write(*, '(e20.12, $)') error_of_results(x, c(k, :))
+        end do
+        write(*,*)
+    end do
+
+    n = 100
+    h = (b - a) / n
+
+    open(20, file='resultpolynomlegendre'//num_of_coef_char//'.csv', status='replace')
+
+    write(20, '(a, $)') 'x'
+    do i = 0, num_of_coef - 1
+        write(20, '(a, a, i2, $)') '|', 'P, N = ', i
+    end do
+
+    write(20, *) 
+
+    do i = 0, n
+        x = a + h * i
+        write(20, '(e20.12, $)') x
+        do k = 0, num_of_coef - 1
+            write(20, '(a, e20.12, $)') '|', legendre_polynom_rec(x, k)
+        end do
+        write(20,*)
+    end do
 
 end program main
