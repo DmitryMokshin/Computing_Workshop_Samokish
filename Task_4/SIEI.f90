@@ -72,6 +72,10 @@ contains
             end do
         end do
 
+        do i = 1, num_of_coef
+            write(*, *) matrix_A(i, :), vector_b(i)
+        end do        
+
         call SSE_Mod_Gauss(matrix_A, vector_b, c)
 
     end function coefficients_of_the_series
@@ -137,5 +141,22 @@ contains
 
 
     end function error_of_results
+
+    function error_of_results_true(x)
+        real(mp) :: error_of_results_true, x
+
+        error_of_results_true = gauss_quad_integral(a, b, 15, dot_fun) - f(x)
+
+        contains
+
+        function dot_fun(ksi)
+            real(mp) :: ksi, dot_fun
+
+            dot_fun = kernal_integral_equation(x, ksi) * u_result(ksi)
+
+        end function dot_fun
+
+
+    end function error_of_results_true
 
 end module SIEI

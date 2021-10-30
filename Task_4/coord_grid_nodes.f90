@@ -10,7 +10,7 @@ contains
         do k = 1, num_of_coef
             vector_roots_cheb(k) = 0.5_mp * (a + b) + 0.5_mp * (b - a) * cos((2.0_mp * k - 1) / 2.0_mp / num_of_coef * pi)
         end do
-        
+
     end function solution_cheb
 
     function legendre_polynomial_coefficients() result(result_coefficient)
