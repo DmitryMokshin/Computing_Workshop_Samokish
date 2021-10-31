@@ -3,45 +3,6 @@ module coord_grid_nodes
     implicit none
 contains
 
-    function solution_cheb() result(vector_roots_cheb)
-        real(mp), dimension(1:num_of_coef) :: vector_roots_cheb
-        integer :: k
-
-        do k = 1, num_of_coef
-            vector_roots_cheb(k) = 0.5_mp * (a + b) + 0.5_mp * (b - a) * cos((2.0_mp * k - 1) / 2.0_mp / num_of_coef * pi)
-        end do
-
-    end function solution_cheb
-
-    function legendre_polynomial_coefficients() result(result_coefficient)
-        real(mp), dimension(1:num_of_coef, 0:num_of_coef) :: result_coefficient
-        integer :: i
-        real(mp), dimension(0:num_of_coef, 0:num_of_coef) :: P_n_matrix
-        
-        P_n_matrix = 0.0_mp
-        P_n_matrix(0, num_of_coef) = 1.0_mp; P_n_matrix(1, num_of_coef - 1) = 1.0_mp
-
-        do i = 2, num_of_coef
-            P_n_matrix(i, 0:num_of_coef)=(2.0_mp * i - 1.0_mp) / i * &
-            & eoshift(P_n_matrix(i - 1,0:num_of_coef), 1, 0.0_mp, 1) - (i - 1.0_mp) / i * P_n_matrix(i - 2,0:num_of_coef)
-        end do
-
-        result_coefficient=P_n_matrix(0:num_of_coef - 1, 0:num_of_coef)
-
-    end function legendre_polynomial_coefficients
-
-    function legendre_polynom(y, leg_pol_coef) result(value_polynom)
-        real(mp) :: y, value_polynom, x
-        real(mp), dimension(0:num_of_coef) :: leg_pol_coef, vector_x
-        integer :: i
-
-        x = 2.0_mp / (b - a) * y - (b + a) / (b - a)
-
-        vector_x = (/(x ** i, i = num_of_coef, 0, -1)/)
-        value_polynom = dot_product(leg_pol_coef, vector_x)
-
-    end function legendre_polynom
-
     function legendre_polynom_rec(y, k)
         real(mp) :: x, legendre_polynom_rec, y
         real(mp), dimension(-1:1) :: P
@@ -75,5 +36,50 @@ contains
         end if
 
     end function legendre_polynom_rec
+
+    REAL(mp) FUNCTION FindDet(matrix, n)
+        IMPLICIT NONE
+        REAL(mp), DIMENSION(n,n) :: matrix
+        INTEGER, INTENT(IN) :: n
+        REAL(mp) :: m, temp
+        INTEGER :: i, j, k, l
+        LOGICAL :: DetExists = .TRUE.
+        l = 1
+        !Convert to upper triangular form
+        DO k = 1, n-1
+        IF (matrix(k,k) == 0) THEN
+        DetExists = .FALSE.
+        DO i = k+1, n
+        IF (matrix(i,k) /= 0) THEN
+        DO j = 1, n
+        temp = matrix(i,j)
+        matrix(i,j)= matrix(k,j)
+        matrix(k,j) = temp
+        END DO
+        DetExists = .TRUE.
+        l=-l
+        EXIT
+        ENDIF
+        END DO
+        IF (DetExists .EQV. .FALSE.) THEN
+        FindDet = 0
+        return
+        END IF
+        ENDIF
+        DO j = k+1, n
+        m = matrix(j,k)/matrix(k,k)
+        DO i = k+1, n
+        matrix(j,i) = matrix(j,i) - m*matrix(k,i)
+        END DO
+        END DO
+        END DO
+
+        !Calculate determinant by finding product of diagonal elements
+        FindDet = l
+        DO i = 1, n
+            FindDet = FindDet * matrix(i,i)
+        END DO
+
+    END FUNCTION FindDet
 
 end module coord_grid_nodes

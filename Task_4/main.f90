@@ -16,7 +16,7 @@ implicit none
     num_of_coef_char = char(ichar('0')+num_of_coef/10)//char(ichar('0')+mod(num_of_coef,10))
 
     do i = 0, num_of_alphas
-        c(i, :) = coefficients_of_the_series(kernel_T, f_1, alphas(i))
+        c(i, :) = coefficients_of_the_series(kernal_integral_equation, f, alphas(i))
     end do 
 
     n = 20
@@ -41,14 +41,6 @@ implicit none
     end do
 
     close(15)
-
-    n = 20
-    h = (b - a) / n
-
-    do i = 0, n
-        x = a + i * h
-        write(*, *) x, error_of_results_true(x)
-    end do
 
     open(17, file='result_coef'//num_of_coef_char//'.csv', status='replace')
 
@@ -89,6 +81,27 @@ implicit none
     end do
 
     close(21)
+
+    open(22, file='result_error_method'//num_of_coef_char//'.csv', status='replace')
+
+    write(22, '(a, $)') 'x'
+
+    do i = 0, num_of_alphas
+        write(22, '(a, a, e9.2, $)') '|', 'Au-f, \alpha = ', alphas(i)
+    end do
+
+    write(22, *) 
+
+    do i = 0, n
+        x = a + h * i
+        write(22, '(e20.12, $)') x
+        do k = 0, num_of_alphas
+            write(22, '(a, e20.12, $)') '|', error_of_results_method(x, c(k, :), alphas(k))
+        end do
+        write(22, *)
+    end do
+
+    close(22)
 
     n = 100
     h = (b - a) / n
