@@ -1,6 +1,6 @@
 module init_data
     implicit none
-    integer, parameter :: mp = 8, num_of_coef = 5
+    integer, parameter :: mp = 8, num_of_coef = 10
     real(mp), parameter :: pi = acos(-1.0_mp), a = 0.0, b = 1.0
 contains
 
@@ -8,7 +8,7 @@ contains
         real(mp) :: x, t
         real(mp) :: kernal_integral_equation
 
-            kernal_integral_equation = 1.0_mp / (1.0_mp + (x + 1.0_mp) * (t + 1.0_mp)) ** 2
+            kernal_integral_equation = 1.0_mp / (1.0_mp + (x + 1.0_mp) * (t + 1.0_mp)) ** 2.0
 
     end function kernal_integral_equation
 

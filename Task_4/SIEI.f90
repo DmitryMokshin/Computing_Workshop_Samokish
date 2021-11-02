@@ -72,12 +72,8 @@ contains
             end do
         end do
 
-        do i = 1, num_of_coef
-            write(*, *) matrix_A(i, :), vector_b(i)
-        end do        
-
         call SSE_Mod_Gauss(matrix_A, vector_b, c)
-
+        
     end function coefficients_of_the_series
 
     function integral(root_cheb, k, kernel_K)
@@ -117,6 +113,29 @@ contains
 
     end function result_fun
 
+    function operator_A(x, u, alpha)
+        real(mp) :: x, alpha, operator_A
+        interface
+            function u(x)
+                use :: init_data
+            implicit none
+                    real(mp) :: x, u
+            end function u
+        end interface
+
+        operator_A = alpha * u(x) + gauss_quad_integral(a, b, 15, dot_T_u)
+
+        contains
+
+        function dot_T_u(ksi)
+            real(mp) :: ksi, dot_T_u
+
+                dot_T_u = kernel_T(x, ksi) * u(ksi)
+
+        end function dot_T_u
+
+    end function operator_A
+
     function error_of_results(x, result_c)
         real(mp), dimension(:) :: result_c
         real(mp) :: error_of_results, x
@@ -141,6 +160,23 @@ contains
 
 
     end function error_of_results
+
+    function error_of_results_method(x, result_c, alpha)
+        real(mp), dimension(:) :: result_c
+        real(mp) :: error_of_results_method, x, alpha
+
+        error_of_results_method = operator_A(x, u, alpha) - f_1(x)
+
+        contains
+
+        function u(t)
+            real(mp) :: t, u
+
+            u = result_fun(t, result_c)
+
+        end function u
+
+    end function error_of_results_method
 
     function error_of_results_true(x)
         real(mp) :: error_of_results_true, x
